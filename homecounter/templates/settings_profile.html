@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Название вашей страницы{% endblock %}
+
+
+{% block menu %}
+<a class="navbar-brand padding" href="../out/?time_identifier={{user.time_identifier}}">{{leng.out}}</a>
+<a class="navbar-brand padding" href="../profile_user/?time_identifier={{user.time_identifier}}">{{leng.home}}</a>
+<a class="navbar-brand padding active_menu" href="../settings_user/?time_identifier={{user.time_identifier}}">{{leng.settings}}</a>
+{% endblock %}
+
+{% block content %}
+<h1>{{leng.2001}}</h1>
+<br>
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">{{leng.2002}}</button>
+</form>
+{% endblock %}

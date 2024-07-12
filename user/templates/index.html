@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Название вашей страницы{% endblock %}
+
+
+{% block menu %}
+<a class="navbar-brand padding active_menu" href="../">Вхід</a>
+<a class="navbar-brand padding" href="../register/">Реєстрація</a>
+<a class="navbar-brand padding" href="../password-reset/">Забули пароль</a>
+{% endblock %}
+
+{% block content %}
+
+<form method="post">
+    {% csrf_token %}
+    {{form.as_p}}
+    <p><button type='submit'>Війти</button></p>
+</form>
+
+{% endblock %}

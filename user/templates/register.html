@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Новий мешканець{% endblock %}
+
+{% block menu %}
+<a class="navbar-brand padding" href="../">Вхід</a>
+<a class="navbar-brand padding active_menu" href="../register/">Реєстрація</a>
+<a class="navbar-brand padding" href="../password-reset/">Забули пароль</a>
+{% endblock %}
+
+
+
+
+{% block content %}
+
+
+
+<h1>Реєстрація</h1>
+<form method="post">
+    {% csrf_token %}
+    {{form.as_p}}
+    
+    <button type="submit">Зареєструватися</button>
+</form>
+{% endblock %}

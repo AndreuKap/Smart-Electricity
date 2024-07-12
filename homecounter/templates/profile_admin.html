@@ -1,0 +1,371 @@
+{% extends "base.html" %}
+{% block title %}{{leng.titleadmin}}{% endblock %}
+
+
+{% block menu %}
+<a class="navbar-brand padding" href="../out/?time_identifier={{user.time_identifier}}">{{leng.out}}</a>
+<a class="navbar-brand padding active_menu" href="../profile_user/?time_identifier={{user.time_identifier}}">{{leng.home}}</a>
+<a class="navbar-brand padding" href="../house_admin/?time_identifier={{user.time_identifier}}">{{leng.11235}}</a>
+<a class="navbar-brand padding" href="../settings_admin/?time_identifier={{user.time_identifier}}">{{leng.11236}}</a>
+{% endblock %}
+
+
+
+{% block content %}
+{% load static %}
+<script type="text/javascript" src="http://code.jquery.com/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script type="text/javascript" src="{% static 'js/data.js' %}"></script>
+
+<div class="profile_hender">
+    <h1 style="display: inline;">{{leng.titleadmin}}</h1>
+    <img {% if user.photo == None or user.photo == '' %} src="{% static 'img/unknown_person.jpg' %}" {% else %} src="../../{{user.photo}}" {% endif %} alt="Profile" class="profile_image"><br><br>
+  
+    
+</div>
+
+<div style="height: auto; overflow: hidden;">
+    <div class="button-container">
+        <button class="period-button" id="day-btn">{{leng.dey}}</button>
+        <button class="period-button" id="week-btn">{{leng.week}}</button>
+        <button class="period-button active" id="month-btn">{{leng.mans}}</button>
+        <button class="period-button" id="year-btn">{{leng.year}}</button>
+    </div>
+    <div class="data-container" style="width: 100%; float: left; display: block; ">
+        <table>
+            <tr>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>{{leng.usage}} <span id="sum"></span> {{leng.general}}</td>
+              <td><span id="sum_data"></span>{{leng.1246}}</td>
+            </tr>
+            <tr>
+              <td>{{leng.usage}} <span id="sum"></span> {{leng.daytime}}</td>
+              <td><span id="sum_day"></span>{{leng.1246}}</td>
+            </tr>
+            <tr>
+              <td>{{leng.usage}} <span id="sum"></span> {{leng.night}}</td>
+              <td><span id="sum_night"></span>{{leng.1246}}</td>
+            </tr>
+            <tr style="display: none;">
+              <td>{{leng.current}}</td>
+              <td><span id="cost_nau"></span></td>
+            </tr>
+            <tr style="display: none;">
+              <td>{{leng.previous}}</td>
+              <td><span id="cost_pop"></span></td>
+            </tr>
+            <tr>
+            <td>{{leng.planned}}<span id="sum"></span></td>
+            <td><span id="nero_value"></span>{{leng.1246}}</td>
+           </tr>
+          </table>
+    </div>
+
+    <div class="cecle_chart" style="display: none;">
+        <canvas id="dayNightChart"></canvas>
+    </div>
+</div>
+    <div class="chart-container">
+        <h2>{{leng.1235}} <span id="sum"></span></h2> 
+        <canvas id="consumptionChart"></canvas>
+    </div>
+    <div id="stackedConsumptionChartContainer">
+    <h2>{{leng.1234}} <span id="sum"></span></h2> 
+    <div class="chart-container">
+        <canvas id="dayConsumptionChart"></canvas>
+    </div>
+    <h2>{{leng.1233}} <span id="sum"></span></h2> 
+    <div class="chart-container">
+        <canvas id="nightConsumptionChart"></canvas>
+    </div>
+    <div class="chart-container" >
+    <h2>{{leng.1232}} <span id="sum"></span></h2> 
+
+        <canvas id="stackedConsumptionChart"></canvas>
+    </div></div>
+
+
+
+    <script>
+const countersDataRaw = {{ counters_data|safe }};
+const countersData = countersDataRaw.map(data => ({
+    power: data.power,
+    datetime: new Date(data.datetime)
+}));
+
+
+// Создание графика дневного потребления
+const dayCtx = document.getElementById('dayConsumptionChart').getContext('2d');
+let dayConsumptionChart = new Chart(dayCtx, {
+    type: 'line',
+    data: {
+        labels: [],
+        datasets: [{
+            label: '{{leng.1231}}',
+            data: [],
+            backgroundColor: 'rgba(255, 206, 86, 0.2)',
+            borderColor: 'rgba(255, 206, 86, 1)',
+            borderWidth: 1,
+            fill: true
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            x: {
+                title: {
+                    display: true,
+                    text: '{{leng.1241}}'
+                }
+            },
+            y: {
+                title: {
+                    display: true,
+                    text: '{{leng.1242}}'
+                }
+            }
+        }
+    }
+});
+
+// Создание графика ночного потребления
+const nightCtx = document.getElementById('nightConsumptionChart').getContext('2d');
+let nightConsumptionChart = new Chart(nightCtx, {
+    type: 'line',
+    data: {
+        labels: [],
+        datasets: [{
+            label: '{{leng.1243}}',
+            data: [],
+            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+            borderColor: 'rgba(75, 192, 192, 1)',
+            borderWidth: 1,
+            fill: true
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            x: {
+                title: {
+                    display: true,
+                    text: '{{leng.1241}}'
+                }
+            },
+            y: {
+                title: {
+                    display: true,
+                    text: '{{leng.1242}}'
+                }
+            }
+        }
+    }
+});
+
+
+// Создание линейного графика
+const ctx = document.getElementById('consumptionChart').getContext('2d');
+let consumptionChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: [],
+        datasets: [{
+            label: '{{leng.1242}}',
+            data: [],
+            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+            borderColor: 'rgba(54, 162, 235, 1)',
+            borderWidth: 1,
+            fill: true
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            x: {
+                title: {
+                    display: true,
+                    text: '{{leng.1241}}'
+                }
+            },
+            y: {
+                title: {
+                    display: true,
+                    text: '{{leng.1242}}'
+                }
+            }
+        }
+    }
+});
+
+
+// Создание накопительной гистограммы дневного и ночного потребления
+const stackedCtx = document.getElementById('stackedConsumptionChart').getContext('2d');
+let stackedConsumptionChart = new Chart(stackedCtx, {
+    type: 'bar',
+    data: {
+        labels: [],
+        datasets: [
+            {
+                label: '{{leng.1231}}',
+                data: [],
+                backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            },
+            {
+                label: '{{leng.1243}}',
+                data: [],
+                backgroundColor: 'rgba(16, 74, 48, 0.6)',
+                borderColor: 'rgba(16, 74, 48, 1)',
+                borderWidth: 1
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            x: {
+                stacked: true,
+                title: {
+                    display: true,
+                    text: '{{leng.1241}}'
+                }
+            },
+            y: {
+                stacked: true,
+                title: {
+                    display: true,
+                    text: '{{leng.1242}}'
+                }
+            }
+        }
+    }
+});
+
+
+// Создание круговой диаграммы
+const dayNightCtx = document.getElementById('dayNightChart').getContext('2d');
+let { dayConsumption, nightConsumption } = calculateDayNightConsumption(countersData);
+let dayNightChart = new Chart(dayNightCtx, {
+    type: 'doughnut',
+    data: {
+        labels: ['{{leng.1244}} (7:00 - 23:00)', '{{leng.1245}} (23:00 - 7:00)'],
+        datasets: [{
+            data: [dayConsumption, nightConsumption],
+            backgroundColor: ['#36A2EB', 'rgba(16, 74, 48, 0.6)'],
+            hoverBackgroundColor: ['#36A2EB', 'rgba(16, 74, 48, 0.6)'],
+            borderColor: ['#dbfff5', '#dbfff5'],
+            borderWidth: 2
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'top'
+            }
+        }
+    }
+});
+
+function datatable(night, day) {
+    document.getElementById('sum_data').textContent = day + night;
+    document.getElementById('sum_day').textContent = day;
+    document.getElementById('sum_night').textContent = night;
+    cost_night = '{{cost.cost_night}}'
+    cost_day = '{{cost.cost_dey}}'
+    document.getElementById('cost_nau').textContent = (parseFloat(night) * parseFloat(cost_night.replace(",", ".")) + parseFloat(day) * parseFloat(cost_day.replace(",", "."))).toFixed(2) + '₴';
+    filteredData = filterDataByPreLastetMonth(countersData);
+    const { dayConsumption, nightConsumption } = calculateDayNightConsumption(filteredData);
+    document.getElementById('cost_pop').textContent = (parseFloat(nightConsumption) * parseFloat(cost_night.replace(",", ".")) + parseFloat(dayConsumption) * parseFloat(cost_day.replace(",", "."))).toFixed(2) + '₴';
+
+}
+
+function updatetext(period) {
+    let mans = '{{leng.111}}';
+    let days = '{{leng.222}}';
+    let weeks = '{{leng.333}}';
+    let years = '{{leng.444}}';
+    var elements = document.querySelectorAll('#sum');
+    switch (period) {
+    case 'month':
+    for (var i = 0; i < elements.length; i++) {elements[i].textContent = mans;}
+
+        break;
+    case 'week':
+    for (var i = 0; i < elements.length; i++) {elements[i].textContent = weeks;}
+
+        break;
+    case 'day':
+    for (var i = 0; i < elements.length; i++) {elements[i].textContent = days;}
+
+        break;
+    case 'year':
+    for (var i = 0; i < elements.length; i++) {elements[i].textContent = years;}
+
+        break;
+    }
+    
+}
+// Добавление слушателей событий к кнопкам
+function setActiveButton(activeButtonId) {
+    document.querySelectorAll('.period-button').forEach(button => {
+        button.classList.remove('active');
+    });
+
+    document.getElementById(activeButtonId).classList.add('active');
+}
+
+// Изначальная загрузка графика за месяц
+updateChart('month');
+updateDayNightChart('month');
+updateDayNightLineCharts('month');
+updateStackedChart('month');
+updatetext('month');
+
+// Добавление слушателей событий к кнопкам
+document.getElementById('day-btn').addEventListener('click', () => {
+    setActiveButton('day-btn');
+    updateChart('day');
+    updateDayNightChart('day');
+    updateDayNightLineCharts('day');
+    updateStackedChart('day');
+    updatetext('day');
+    
+});
+
+document.getElementById('week-btn').addEventListener('click', () => {
+    setActiveButton('week-btn');
+    updateChart('week');
+    updateDayNightChart('week');
+    updateDayNightLineCharts('week');
+    updateStackedChart('week');
+    updatetext('week');
+});
+
+document.getElementById('month-btn').addEventListener('click', () => {
+    setActiveButton('month-btn');
+    updateChart('month');
+    updateDayNightChart('month');
+    updateDayNightLineCharts('month');
+    updateStackedChart('month');
+    updatetext('month');
+});
+
+document.getElementById('year-btn').addEventListener('click', () => {
+    setActiveButton('year-btn');
+    updateChart('year');
+    updateDayNightChart('year');
+    updateDayNightLineCharts('year');
+    updateStackedChart('year');
+    updatetext('year');
+});
+
+
+</script>
+
+{% endblock %}
+

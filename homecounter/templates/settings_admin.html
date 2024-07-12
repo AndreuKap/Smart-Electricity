@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Название вашей страницы{% endblock %}
+
+
+{% block menu %}
+<a class="navbar-brand padding" href="../out/?time_identifier={{user.time_identifier}}">{{leng.out}}</a>
+<a class="navbar-brand padding" href="../profile_admin/?time_identifier={{user.time_identifier}}">{{leng.home}}</a>
+<a class="navbar-brand padding" href="../house_admin/?time_identifier={{user.time_identifier}}">{{leng.11236}}</a>
+<a class="navbar-brand padding active_menu" href="../settings_admin/?time_identifier={{user.time_identifier}}">{{leng.11235}}</a>
+{% endblock %}
+
+{% block content %}
+<h1>{{leng.322}}</h1>
+<br>
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    {{ cost_form.as_p }}
+    <button type="submit">{{ leng.2002 }}</button>
+</form>
+{% endblock %}

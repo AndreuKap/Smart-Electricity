@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}{{leng.319}}{% endblock %}
+
+
+{% block menu %}
+<a class="navbar-brand padding" href="../out/?time_identifier={{user.time_identifier}}">{{leng.out}}</a>
+<a class="navbar-brand padding" href="../profile_admin/?time_identifier={{user.time_identifier}}">{{leng.home}}</a>
+<a class="navbar-brand padding active_menu" href="../house_admin/?time_identifier={{user.time_identifier}}">{{leng.11235}}</a>
+<a class="navbar-brand padding" href="../settings_admin/?time_identifier={{user.time_identifier}}">{{leng.11236}}</a>
+{% endblock %}
+
+{% block content %}
+<h1>{{leng.319}}</h1>
+<br>
+<div>
+    <form action="" method="get">
+        <label for="apartment_number">{{leng.320}}:</label>
+        <input type="text" id="apartment_number" name="apartment_number" value="{{ apartment_number|default:'' }}" placeholder="{{leng.321}}">
+        <input type="hidden" name="time_identifier" value="{{ user.time_identifier }}">
+        <input type="hidden" name="leng" value="{{ user.language }}">
+        <button type="submit">{{leng.323}}</button>
+    </form>
+    
+  </div>
+  
+  <table>
+    <thead>
+      <tr>
+        <th>{{leng.312}}</th>
+        <th>{{leng.313}}</th>
+        <th>{{leng.314}}</th>
+        <th>{{leng.315}}</th>
+        <th>{{leng.316}}</th>
+        <th>{{leng.317}}</th>
+        <th>{{leng.318}}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in page_obj %}
+      <tr>
+        <td>{{ item.apartment_number }}</td>
+        <td>{{ item.first_name }}</td>
+        <td>{{ item.last_name }}</td>
+        <td>{{ item.current_day_power }}</td>
+        <td>{{ item.current_night_power }}</td>
+        <td>{{ item.last_day_power }}</td>
+        <td>{{ item.last_night_power }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  
+  <div style="margin-top: 40px;">
+    <span class="step-links">
+      {% if page_obj.has_previous %}
+          <a href="?page=1&leng={{ user.language }}&time_identifier={{user.time_identifier}}{% if apartment_number %}&apartment_number={{ apartment_number }}{% endif %}"><button>{{leng.first}}</button></a>
+          <a href="?page={{ page_obj.previous_page_number }}&leng={{ user.language }}&time_identifier={{user.time_identifier}}{% if apartment_number %}&apartment_number={{ apartment_number }}{% endif %}"><button>{{leng.previous}}</button></a>
+      {% endif %}
+  
+      <span class="current">
+        {{leng.Page}} {{ page_obj.number }} {{leng.of11}} {{ page_obj.paginator.num_pages }}.
+      </span>
+  
+      {% if page_obj.has_next %}
+          <a href="?page={{ page_obj.next_page_number }}&leng={{ user.language }}&time_identifier={{user.time_identifier}}{% if apartment_number %}&apartment_number={{ apartment_number }}{% endif %}"><button>{{leng.next}}</button></a>
+          <a href="?page={{ page_obj.paginator.num_pages }}&leng={{ user.language }}&time_identifier={{user.time_identifier}}{% if apartment_number %}&apartment_number={{ apartment_number }}{% endif %}"><button>{{leng.last}}</button></a>
+      {% endif %}
+    </span>
+  </div>
+  
+  {% endblock %}
